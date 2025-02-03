@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "nba-pipeline"
+version = "0.1.0"
+description = ""
+authors = ["Euizzang8001 <a73875323@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pyspark = "^3.5.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
