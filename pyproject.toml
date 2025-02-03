@@ -12,6 +12,8 @@ nba-api = "^1.7"
 psycopg2 = "^2.9.10"
 python-dotenv = "^1.0.1"
 psycopg2-binary = "^2.9.10"
+hdfs = "^2.7.3"
+kafka-python = "^2.0.2"
 
 
 [build-system]
