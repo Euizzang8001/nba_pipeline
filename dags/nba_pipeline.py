@@ -4,7 +4,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from src.collection_algorithm import listen_new_data
+from src.collection_algorithm import listen_new_data, test1
 
 kst = pendulum.timezone('Asia/Seoul')
 dag_name = "nba_data_pipeline"
@@ -13,7 +13,7 @@ default_args = {
     'owner': 'Euizzang',
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
-    'start_date': kst,
+    'start_date': pendulum.datetime(2025, 2, 7, 12, 0, 0, tz=kst),
     'depends_on_past': False,
     'email': ['qkrdmlcks55@naver.com'],
     'email_on_failure': False,
@@ -31,5 +31,9 @@ with DAG(
         task_id="listen_new_data_task",
         python_callable=listen_new_data,
     )
+    test1_task = PythonOperator(
+        task_id="test1_task",
+        python_callable=test1,
+    )
 
-    listen_new_data_task
+    listen_new_data_task >> test1_task
