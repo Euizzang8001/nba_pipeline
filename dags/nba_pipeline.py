@@ -2,9 +2,10 @@ import pendulum
 from datetime import timedelta
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-
-from src.collection_algorithm import listen_new_data, test1
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.empty import EmptyOperator
+from airflow.models import TaskInstance
+from src.collection_algorithm import listen_new_data, test1, send_live_game_data
 
 kst = pendulum.timezone('Asia/Seoul')
 dag_name = "nba_data_pipeline"
@@ -27,13 +28,37 @@ with DAG(
     description = 'DAG for nba_data_pipeline',
     tags = ['nba', 'euizzang', 'euichan', 'data', 'data engineering']
 ) as dag:
-    listen_new_data_task = PythonOperator(
-        task_id="listen_new_data_task",
-        python_callable=listen_new_data,
-    )
-    test1_task = PythonOperator(
-        task_id="test1_task",
-        python_callable=test1,
+    def check_listen_new_data(**kwargs):
+        task_instance = kwargs['task_instance']
+        should_continue = listen_new_data(task_instance)
+        return "continue_task" if should_continue else "stop_task"
+
+
+    branch_task = BranchPythonOperator(
+        task_id="listen_new_data",
+        python_callable=check_listen_new_data,
+        provide_context=True,
     )
 
-    listen_new_data_task >> test1_task
+    continue_task = EmptyOperator(task_id="continue_task")
+    stop_task = EmptyOperator(task_id="stop_task")
+
+    send_live_game_tasks = []
+    for i in range(15):
+        task = PythonOperator(
+            task_id=f"live_game{i}_task",
+            python_callable=send_live_game_data,
+            op_kwargs={"game_num": i},
+        )
+        send_live_game_tasks.append(task)
+
+    branch_task >> continue_task >> send_live_game_tasks
+    branch_task >> stop_task
+
+
+
+
+
+
+
+
