@@ -1,0 +1,9 @@
+hdfs==2.7.3
+kafka-python==2.0.2
+nba_api==1.7.0
+psycopg2-binary==2.9.10
+pyspark==3.5.4
+python-dotenv~=0.21.0
+requests==2.32.3
+pendulum~=3.0.0
+paramiko==3.3.2
